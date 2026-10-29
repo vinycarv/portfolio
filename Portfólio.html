@@ -1,0 +1,928 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Portfólio Audiovisual</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Direção: sala de edição à noite. Fundo carvão, papel quente, um único
+   acento de "luz de gravação". Timecodes e marcadores de quadro são a
+   estrutura da página. Tipo: serifa de exibição, texto sem serifa, mono
+   para timecodes. */
+:root {
+  --bg: #0c0c0d;
+  --bg-2: #151517;
+  --fg: #efeae2;
+  --fg-2: #a9a49b;
+  --line: rgba(239, 234, 226, .14);
+  --accent: #ff5a1f;
+  --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f4f1ea; --bg-2: #ebe7de; --fg: #141414; --fg-2: #5f5b54;
+    --line: rgba(20, 20, 20, .14); --accent: #e0461a; color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f4f1ea; --bg-2: #ebe7de; --fg: #141414; --fg-2: #5f5b54;
+  --line: rgba(20, 20, 20, .14); --accent: #e0461a; color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; overflow-x: clip; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: clip;
+  padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+p { margin: 0; text-wrap: pretty; }
+img, svg, canvas { max-width: 100%; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+/* Cena 3D de fundo: fica fixa atrás do conteúdo */
+#scene {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; opacity: .9;
+}
+main, header, footer { position: relative; z-index: 1; }
+
+/* Linhas com máscara: o texto sobe de dentro da própria linha */
+.ln { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+.ln-in { display: inline-block; will-change: transform; }
+
+.mono { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-2); }
+.rec { display: inline-flex; align-items: center; gap: 10px; }
+.rec::before {
+  content: ""; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 0 var(--accent);
+  animation: pulse 1.8s ease-out infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); }
+  100% { box-shadow: 0 0 0 12px transparent; }
+}
+
+/* Cursor personalizado (só em telas com mouse) */
+.has-cursor, .has-cursor * { cursor: none !important; }
+.cursor {
+  position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none;
+  border-radius: 50%; transform: translate(-50%, -50%);
+}
+.cursor-dot { width: 8px; height: 8px; background: var(--accent); }
+.cursor-ring {
+  width: 44px; height: 44px; border: 1px solid var(--fg);
+  transition: width .35s cubic-bezier(.2,.7,.2,1), height .35s cubic-bezier(.2,.7,.2,1), background .35s, border-color .35s;
+}
+.cursor-ring.hover { width: 84px; height: 84px; background: color-mix(in srgb, var(--accent) 18%, transparent); border-color: var(--accent); }
+
+/* Cortina de entrada: sobe revelando a página */
+.curtain {
+  position: fixed; inset: 0; z-index: 90; background: var(--accent);
+  display: flex; align-items: center; justify-content: center; pointer-events: none;
+}
+.curtain span { font-family: var(--font-mono); font-size: 14px; letter-spacing: .12em; color: #0c0c0d; }
+
+/* Barra superior */
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; padding-block: 20px; border-bottom: 1px solid var(--line);
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(10px);
+}
+.brand { font-family: var(--font-display); font-size: 22px; text-decoration: none; }
+.brand i { color: var(--accent); font-style: italic; }
+.nav { display: flex; gap: 22px; }
+.nav a { text-decoration: none; color: var(--fg-2); font-size: 14px; position: relative; padding-block: 4px; }
+.nav a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--accent);
+  transform: scaleX(0); transform-origin: right; transition: transform .5s cubic-bezier(.7,0,.2,1);
+}
+.nav a:hover { color: var(--fg); }
+.nav a:hover::after { transform: scaleX(1); transform-origin: left; }
+
+/* Hero */
+.hero { min-height: 88vh; min-height: 88svh; display: flex; flex-direction: column; justify-content: center; padding-block: 64px 40px; }
+.hero-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 36px; }
+.hero h1 {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(56px, 13vw, 190px); line-height: .92; letter-spacing: -.02em;
+}
+.hero h1 em { font-style: italic; color: var(--accent); }
+.hero .lede { margin-top: 28px; max-width: 46ch; font-size: clamp(17px, 2vw, 20px); color: var(--fg-2); }
+.hero-actions { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 12px; }
+.btn {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 22px;
+  border-radius: 999px; border: 1px solid var(--line); text-decoration: none; font-weight: 600; font-size: 15px;
+  transition: color .4s cubic-bezier(.2,.7,.2,1), border-color .3s;
+}
+.btn::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
+  background: var(--fg); transform: translateY(101%); transition: transform .5s cubic-bezier(.2,.7,.2,1);
+}
+.btn:hover { color: var(--bg); }
+.btn:hover::before { transform: translateY(0); }
+.btn.primary { background: var(--accent); color: #0c0c0d; border-color: var(--accent); }
+.btn.primary::before { background: var(--fg); }
+
+/* Régua de tempo do hero */
+.ruler {
+  margin-top: 56px; height: 56px; position: relative; border-top: 1px solid var(--line);
+  background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 60px);
+  background-size: 100% 12px; background-repeat: repeat-x; background-position: 0 0;
+}
+.playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); left: 0; }
+.playhead::after {
+  content: attr(data-tc); position: absolute; top: -26px; left: 6px; white-space: nowrap;
+  font-family: var(--font-mono); font-size: 12px; color: var(--accent);
+}
+
+/* Faixa de texto que acelera com a rolagem */
+.marquee {
+  overflow: hidden; contain: paint; border-block: 1px solid var(--line); padding-block: 18px;
+  white-space: nowrap; max-width: 100%;
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+}
+.marquee-track { display: inline-flex; gap: 40px; will-change: transform; }
+.marquee-track span { font-family: var(--font-display); font-size: clamp(36px, 6vw, 72px); line-height: 1; }
+.marquee-track span:nth-child(3n) { color: var(--accent); font-style: italic; }
+.marquee-track i { font-style: normal; color: var(--fg-2); align-self: center; }
+
+/* Seções */
+section { padding-block: clamp(72px, 12vw, 140px); border-top: 1px solid var(--line); }
+.section-head { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 48px; align-items: end; }
+.section-head h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(40px, 6vw, 84px); line-height: 1; }
+.section-head h2 em { color: var(--accent); }
+
+/* Obras */
+.reel { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 20px; }
+.work {
+  text-decoration: none; display: flex; flex-direction: column; gap: 12px;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px; padding: 10px; overflow: hidden;
+  transition: border-color .3s;
+  transform-style: preserve-3d; will-change: transform;
+}
+.work:hover { border-color: var(--accent); }
+.frame {
+  position: relative; aspect-ratio: 16 / 9; border-radius: 2px; overflow: hidden;
+  background: linear-gradient(135deg, var(--a, #3a2a20), var(--b, #0b0b0c));
+  transform-style: preserve-3d; will-change: transform;
+}
+.frame::after {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px);
+}
+.frame .shine {
+  position: absolute; inset: -40%; z-index: 0; pointer-events: none; opacity: 0; transition: opacity .4s;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,.22), transparent 45%);
+}
+.work:hover .frame .shine { opacity: 1; }
+.frame .tc { position: absolute; left: 10px; bottom: 8px; z-index: 1; color: #fff; font-family: var(--font-mono); font-size: 11px; opacity: .85; }
+.frame .corner { position: absolute; top: 10px; right: 10px; z-index: 1; color: #fff; font-family: var(--font-mono); font-size: 11px; opacity: .85; }
+.work h3 { font-size: 20px; font-weight: 600; font-family: var(--font-body); letter-spacing: -.01em; padding: 0 4px; }
+.work .meta { padding: 0 4px 6px; display: flex; justify-content: space-between; gap: 8px; }
+
+/* Processo: pontos de corte */
+.cuts { display: grid; gap: 0; }
+.cut {
+  display: grid; grid-template-columns: 140px 1fr; gap: 24px;
+  padding-block: 28px; border-top: 1px solid var(--line);
+}
+.cut:last-child { border-bottom: 1px solid var(--line); }
+.cut .tc { font-family: var(--font-mono); font-size: 14px; color: var(--accent); padding-top: 6px; }
+.cut h3 { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3.6vw, 44px); line-height: 1.05; }
+.cut p { margin-top: 10px; color: var(--fg-2); max-width: 60ch; }
+
+/* Sobre, ferramentas e números */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.tags { display: flex; flex-wrap: wrap; gap: 10px; }
+.tags span {
+  border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: 14px;
+  transition: background .3s, color .3s, border-color .3s;
+}
+.tags span:hover { background: var(--accent); border-color: var(--accent); color: #0c0c0d; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+.stats div { border-top: 1px solid var(--line); padding-top: 14px; }
+.stats strong { display: block; font-family: var(--font-display); font-weight: 400; font-size: clamp(36px, 5vw, 60px); line-height: 1; }
+.stats span { color: var(--fg-2); font-size: 14px; }
+
+/* Contato */
+.contact { text-align: left; }
+.contact h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(48px, 9vw, 130px); line-height: .95; }
+.contact h2 em { color: var(--accent); }
+.copy {
+  margin-top: 36px; display: inline-flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  font-size: clamp(18px, 2.6vw, 26px); border-bottom: 1px solid var(--accent); padding-bottom: 6px;
+  background: none; border-top: 0; border-left: 0; border-right: 0; color: var(--fg); cursor: pointer; font-family: inherit;
+}
+.copy small { font-family: var(--font-mono); font-size: 12px; color: var(--fg-2); }
+
+footer { padding-block: 40px 56px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+/* Linhas de fundo: curvas orgânicas que acendem em laranja conforme a rolagem */
+.hlines { position: fixed; inset: 0; z-index: 0; pointer-events: none; --f: 0; }
+.hlines svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.hlines .base {
+  fill: none; stroke: var(--accent); stroke-width: 1;
+  stroke-opacity: calc(.08 + var(--f) * .55);
+}
+.hlines .sweep {
+  fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round;
+  stroke-dasharray: .14 1; opacity: calc(.15 + var(--f) * .85);
+  filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 14px var(--accent));
+}
+
+/* Letras que reagem ao cursor: sobem levemente, crescem e acendem em laranja */
+.char {
+  display: inline-block;
+  transform: scale(calc(1 + var(--k, 0) * .1));
+  color: color-mix(in srgb, var(--accent) calc(var(--k, 0) * 100%), currentColor);
+  text-shadow: 0 0 calc(var(--k, 0) * 22px) color-mix(in srgb, var(--accent) 70%, transparent);
+  transition: transform .3s cubic-bezier(.2,.7,.2,1), color .3s, text-shadow .3s;
+}
+
+/* Brilho laranja nos botões e cards ao passar o mouse */
+.btn.glow:hover, .work:hover, .tags span:hover {
+  box-shadow: 0 0 0 1px var(--accent), 0 12px 40px -8px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.btn, .work, .tags span { transition: box-shadow .4s, transform .4s cubic-bezier(.2,.7,.2,1), background .3s, color .3s, border-color .3s; }
+
+/* Barra de progresso da rolagem */
+.progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 95;
+  background: var(--accent); transform-origin: 0 50%; transform: scaleX(0);
+}
+
+/* Obras em trilho horizontal (só no computador, com JavaScript) */
+.hpin .reel-pin { height: 100vh; display: flex; align-items: center; overflow: hidden; }
+.hpin .reel { display: flex; grid-template-columns: none; gap: 28px; width: max-content; padding-inline: 6vw; }
+.hpin .reel .work { width: min(440px, 36vw); flex: none; }
+
+/* Estado de repouso: tudo visível. Só com JavaScript o conteúdo entra em movimento. */
+.js .reveal { opacity: 0; }
+
+@media (max-width: 760px) {
+  .nav { display: none; }
+  .section-head, .two { grid-template-columns: 1fr; gap: 16px; }
+  .cut { grid-template-columns: 1fr; gap: 8px; }
+  .stats { grid-template-columns: 1fr 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rec::before { animation: none; }
+}
+</style>
+
+<div class="hlines" id="hlines" aria-hidden="true"></div>
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="brand" href="#top">Vinícius <i>Carvalho</i></a>
+  <nav class="nav" aria-label="Seções">
+    <a href="#obras">Obras</a>
+    <a href="#processo">Processo</a>
+    <a href="#sobre">Sobre</a>
+    <a href="#contato">Contato</a>
+  </nav>
+</header>
+
+<main id="top">
+  <div class="hero">
+    <div class="hero-meta">
+      <span class="mono rec">Editor · Filmmaker</span>
+      <span class="mono">Edição, cor e direção</span>
+    </div>
+    <h1 class="split">Histórias<br>que <em>prendem</em><br>a atenção</h1>
+    <p class="lede reveal">Edito e filmo vídeos para marcas, artistas e criadores. Cada corte é pensado para o ritmo da história, do primeiro quadro ao último.</p>
+    <div class="hero-actions reveal">
+      <a class="btn primary magnetic glow" href="#obras">Ver trabalhos</a>
+      <a class="btn magnetic glow" href="#contato">Falar comigo</a>
+    </div>
+    <div class="ruler" aria-hidden="true"><div class="playhead" id="playhead" data-tc="00:00:00:00"></div></div>
+  </div>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marquee">
+      <span>Edição</span><i>✦</i><span>Cor</span><i>✦</i><span>Direção</span><i>✦</i><span>Motion</span><i>✦</i><span>Som</span><i>✦</i>
+    </div>
+  </div>
+
+  <section id="obras">
+    <div class="section-head">
+      <p class="mono reveal">01 — Obras selecionadas</p>
+      <h2 class="split">Trabalhos <em>recentes</em></h2>
+    </div>
+    <div class="reel-pin"><div class="reel">
+      <a class="work reveal" href="#contato" style="--a:#7a3b1d;--b:#120a06">
+        <div class="frame"><span class="shine"></span><span class="corner">REC</span><span class="tc">01:00:12:04</span></div>
+        <div class="meta"><span class="mono">Videoclipe</span><span class="mono">2026</span></div>
+        <h3>Título do projeto 01</h3>
+      </a>
+      <a class="work reveal" href="#contato" style="--a:#1d3a4f;--b:#05090d">
+        <div class="frame"><span class="shine"></span><span class="corner">REC</span><span class="tc">00:03:47:18</span></div>
+        <div class="meta"><span class="mono">Campanha</span><span class="mono">2026</span></div>
+        <h3>Título do projeto 02</h3>
+      </a>
+      <a class="work reveal" href="#contato" style="--a:#3d4a1f;--b:#080a04">
+        <div class="frame"><span class="shine"></span><span class="corner">REC</span><span class="tc">00:12:33:09</span></div>
+        <div class="meta"><span class="mono">Documentário</span><span class="mono">2025</span></div>
+        <h3>Título do projeto 03</h3>
+      </a>
+      <a class="work reveal" href="#contato" style="--a:#4f1d3a;--b:#0a0507">
+        <div class="frame"><span class="shine"></span><span class="corner">REC</span><span class="tc">00:00:58:21</span></div>
+        <div class="meta"><span class="mono">Redes sociais</span><span class="mono">2025</span></div>
+        <h3>Título do projeto 04</h3>
+      </a>
+    </div></div>
+  </section>
+
+  <section id="processo">
+    <div class="section-head">
+      <p class="mono reveal">02 — Processo</p>
+      <h2 class="split">Do bruto <em>ao final</em></h2>
+    </div>
+    <div class="cuts">
+      <article class="cut reveal">
+        <span class="tc">00:00:00:00</span>
+        <div>
+          <h3>Roteiro e decupagem</h3>
+          <p>Antes de gravar, defino o que cada plano precisa dizer. Isso economiza horas de tela e deixa a edição mais limpa.</p>
+        </div>
+      </article>
+      <article class="cut reveal">
+        <span class="tc">00:00:21:08</span>
+        <div>
+          <h3>Montagem e ritmo</h3>
+          <p>Escolho os melhores takes, construo a narrativa e ajusto o ritmo para a emoção chegar no momento certo.</p>
+        </div>
+      </article>
+      <article class="cut reveal">
+        <span class="tc">00:01:04:16</span>
+        <div>
+          <h3>Cor, som e motion</h3>
+          <p>Tratamento de cor, mixagem, motion graphics e legendas. É aqui que o vídeo ganha identidade.</p>
+        </div>
+      </article>
+      <article class="cut reveal">
+        <span class="tc">00:01:37:02</span>
+        <div>
+          <h3>Entrega em todos os formatos</h3>
+          <p>Versões para cinema, YouTube, Reels, TikTok e anúncios, cada uma com corte e legenda adequados.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="sobre">
+    <div class="two">
+      <div>
+        <p class="mono reveal" style="margin-bottom:20px">03 — Sobre</p>
+        <h2 class="split" style="font-family:var(--font-display);font-weight:400;font-size:clamp(40px,5.5vw,76px);line-height:1">Um olhar de <em style="color:var(--accent)">cinema</em> para o seu conteúdo</h2>
+        <p class="reveal scrub" style="margin-top:28px;color:var(--fg-2);max-width:52ch">Conte aqui sua trajetória em duas ou três frases: onde começou, que tipo de projeto gosta de fazer e o que faz seu trabalho diferente.</p>
+        <div class="stats">
+          <div class="reveal"><strong>6</strong><span>anos de experiência</span></div>
+          <div class="reveal"><strong>+700</strong><span>projetos entregues</span></div>
+          <div class="reveal"><strong>+50</strong><span>clientes atendidos</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contato" class="contact">
+    <p class="mono rec reveal" style="margin-bottom:28px">Disponível para novos projetos</p>
+    <h2 class="split">Vamos fazer <em>o próximo</em> corte juntos?</h2>
+    <button class="copy magnetic reveal" id="copy" type="button">
+      <span id="email">vinysilva1914@gmail.com</span>
+      <small id="copy-hint">toque para copiar</small>
+    </button>
+    <div class="hero-actions reveal" style="margin-top:40px">
+      <a class="btn primary magnetic" href="https://www.instagram.com/viny_carv" target="_blank" rel="noopener">Instagram @viny_carv</a>
+      <a class="btn magnetic" href="#obras">Ver trabalhos</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span class="mono">© Vinícius Carvalho · Todos os direitos reservados</span>
+  <span class="mono">Feito para contar histórias</span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  document.documentElement.classList.add('js');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = window.matchMedia('(pointer: fine)').matches;
+  const hasGsap = !!(window.gsap && window.ScrollTrigger);
+  if (hasGsap) gsap.registerPlugin(ScrollTrigger);
+
+  // Quebra cada título em linhas com máscara (o texto sobe de dentro da linha)
+  document.querySelectorAll('.split').forEach((el) => {
+    const lines = el.innerHTML.split(/<br\s*\/?>/i);
+    el.innerHTML = lines.map((l) => `<span class="ln"><span class="ln-in">${l.trim()}</span></span>`).join('');
+  });
+
+  // Régua do hero: o cursor de tempo acompanha a rolagem
+  const playhead = document.getElementById('playhead');
+  function tc(sec) {
+    const f = Math.floor((sec % 1) * 24);
+    const s = Math.floor(sec) % 60, m = Math.floor(sec / 60) % 60, h = Math.floor(sec / 3600);
+    const p = (n) => String(n).padStart(2, '0');
+    return `${p(h)}:${p(m)}:${p(s)}:${p(f)}`;
+  }
+
+  // Copiar e-mail (o clique precisa vir do usuário)
+  document.getElementById('copy').addEventListener('click', async () => {
+    const text = document.getElementById('email').textContent.trim();
+    const hint = document.getElementById('copy-hint');
+    try {
+      await navigator.clipboard.writeText(text);
+      hint.textContent = 'copiado!';
+    } catch {
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById('email'));
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      hint.textContent = 'selecione e copie';
+    }
+    setTimeout(() => { hint.textContent = 'toque para copiar'; }, 2200);
+  });
+
+  // Cena 3D: a câmera orbita em volta das obras. A rolagem e o cursor
+  // mudam o ângulo (órbita horizontal) e a altura (diagonal), e ela passa
+  // para o outro lado do conjunto.
+  let scrollP = 0, mouse = { x: 0, y: 0, px: window.innerWidth / 2, py: window.innerHeight / 2 };
+  let renderer = null;
+  try {
+    const canvas = document.getElementById('scene');
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const scene3d = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+
+    const accent = new THREE.Color(0xff5a1f);
+    const ink = new THREE.Color(0xefeae2);
+
+    // Quadros de filme em duas faixas, formando um cilindro
+    // Material holográfico: brilho iridescente pelo ângulo de visão, linhas de varredura
+    // e um halo que segue o cursor
+    const holoMat = (color) => new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 }, uInfl: { value: 0 }, uColor: { value: color.clone() },
+        uPx: { value: new THREE.Vector2() }, uRes: { value: new THREE.Vector2(1, 1) },
+      },
+      transparent: true, depthWrite: false, side: THREE.DoubleSide,
+      vertexShader: `
+        varying vec2 vUv; varying vec3 vN; varying vec3 vV;
+        void main() {
+          vUv = uv;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vN = normalize(normalMatrix * normal);
+          vV = normalize(-mv.xyz);
+          gl_Position = projectionMatrix * mv;
+        }`,
+      fragmentShader: `
+        uniform float uTime; uniform float uInfl; uniform vec3 uColor;
+        uniform vec2 uPx; uniform vec2 uRes;
+        varying vec2 vUv; varying vec3 vN; varying vec3 vV;
+        vec3 pal(float t) { return 0.5 + 0.5 * cos(6.2831 * (t + vec3(0.0, 0.33, 0.67))); }
+        void main() {
+          float fres = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.0);
+          float scan = 0.82 + 0.18 * sin(vUv.y * 260.0 - uTime * 5.0);
+          float band = smoothstep(0.0, 0.12, 1.0 - abs(fract(vUv.y - uTime * 0.12) * 2.0 - 1.0));
+          vec3 iri = pal(vUv.x * 0.5 + vUv.y * 0.3 + fres * 0.9 + uTime * 0.04);
+          float halo = exp(-length(gl_FragCoord.xy - uPx) / (uRes.y * 0.22));
+          vec3 col = uColor * 0.9 + iri * (0.3 + 0.9 * fres) * (0.6 + uInfl);
+          col += iri * halo * (0.5 + uInfl * 0.8) + band * 0.12;
+          col *= scan;
+          float alpha = 0.34 + 0.3 * fres + 0.4 * uInfl + 0.3 * halo;
+          gl_FragColor = vec4(col, clamp(alpha, 0.0, 0.95));
+        }`,
+    });
+    const frameGeo = new THREE.PlaneGeometry(3.4, 1.9);
+    const edgeGeo = new THREE.EdgesGeometry(frameGeo);
+    const group = new THREE.Group();
+    const frames = [];
+    scene3d.add(group);
+    for (let i = 0; i < 18; i++) {
+      const ring = i % 2;
+      const a = (i / 9) * Math.PI;
+      const mat = holoMat(i % 5 === 0 ? accent : new THREE.Color().setHSL(0.07, 0.15, 0.42 + (i % 3) * 0.05));
+      const mesh = new THREE.Mesh(frameGeo, mat);
+      mesh.add(new THREE.LineSegments(edgeGeo, new THREE.LineBasicMaterial({ color: ink, transparent: true, opacity: 0.4 })));
+      const r = 6.2 + ring * 1.6;
+      mesh.position.set(Math.cos(a * 2) * r, (ring ? 1.2 : -1.2), Math.sin(a * 2) * r);
+      mesh.lookAt(0, mesh.position.y, 0);
+      mesh.userData = { base: mesh.position.clone(), infl: 0 };
+      group.add(mesh);
+      frames.push(mesh);
+    }
+
+    // Núcleo: um anel de luz e um cristal de fio, para dar profundidade no centro
+    const core = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(1.4, 0),
+      new THREE.MeshBasicMaterial({ color: accent, wireframe: true, transparent: true, opacity: 0.7 })
+    );
+    const ringMesh = new THREE.Mesh(
+      new THREE.TorusGeometry(3.4, 0.02, 8, 120),
+      new THREE.MeshBasicMaterial({ color: ink, transparent: true, opacity: 0.35 })
+    );
+    ringMesh.rotation.x = Math.PI / 2.4;
+    scene3d.add(core, ringMesh);
+
+    // Poeira de luz em volta
+    const count = 500;
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const r = 10 + Math.random() * 14, th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
+      pos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+      pos[i * 3 + 1] = r * Math.cos(ph) * 0.7;
+      pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+    }
+    const dustGeo = new THREE.BufferGeometry();
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: ink, size: 0.05, transparent: true, opacity: 0.5 }));
+    scene3d.add(dust);
+
+    function resize() {
+      const w = window.innerWidth, h = window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    window.addEventListener('pointermove', (e) => {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
+      mouse.px = e.clientX; mouse.py = e.clientY;
+    });
+    window.addEventListener('scroll', () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrollP = max > 0 ? window.scrollY / max : 0;
+    }, { passive: true });
+
+    // Órbita: ângulo horizontal (theta), altura (phi) e distância (r), suavizados
+    const cur = { theta: 0, phi: 1.25, r: 25 };
+    const clock = new THREE.Clock();
+    function draw() {
+      const t = clock.getElapsedTime();
+      const tTheta = scrollP * Math.PI * 3 + mouse.x * 0.9 + t * 0.05;
+      const tPhi = 1.25 + Math.sin(scrollP * Math.PI * 2) * 0.55 + mouse.y * 0.55;
+      const tR = 25 - Math.abs(mouse.x) * 3;
+      cur.theta += (tTheta - cur.theta) * 0.06;
+      cur.phi += (tPhi - cur.phi) * 0.06;
+      cur.r += (tR - cur.r) * 0.06;
+      camera.position.set(
+        cur.r * Math.sin(cur.phi) * Math.sin(cur.theta),
+        cur.r * Math.cos(cur.phi),
+        cur.r * Math.sin(cur.phi) * Math.cos(cur.theta)
+      );
+      camera.lookAt(0, 0, 0);
+
+      // Cada quadro reage ao cursor: se aproxima da câmera e acende quando o mouse passa perto
+      const pr = renderer.getPixelRatio();
+      const w = renderer.domElement.width, h = renderer.domElement.height;
+      const camLocal = group.worldToLocal(camera.position.clone());
+      const ndcY = -mouse.y;
+      frames.forEach((f) => {
+        const d = f.userData;
+        const c = f.getWorldPosition(new THREE.Vector3()).project(camera);
+        const dx = (c.x - mouse.x) * camera.aspect, dy = c.y - ndcY;
+        const target = Math.exp(-(dx * dx + dy * dy) * 4.5);
+        d.infl += (target - d.infl) * 0.12;
+        const dir = camLocal.clone().sub(d.base).normalize();
+        f.position.copy(d.base).addScaledVector(dir, d.infl * 2.4);
+        f.scale.setScalar(1 + d.infl * 0.22);
+        const u = f.material.uniforms;
+        u.uInfl.value = d.infl;
+        u.uTime.value = t;
+        u.uPx.value.set(mouse.px * pr, (window.innerHeight - mouse.py) * pr);
+        u.uRes.value.set(w, h);
+      });
+      // O grupo inclina na direção do cursor
+      group.rotation.x += (mouse.y * 0.18 - group.rotation.x) * 0.05;
+      group.rotation.y = t * 0.08 + scrollP * 0.6;
+      core.rotation.x = t * 0.3; core.rotation.y = t * 0.45;
+      ringMesh.rotation.z = t * 0.12;
+      dust.rotation.y = t * 0.02;
+      renderer.render(scene3d, camera);
+      if (!reduce) requestAnimationFrame(draw);
+    }
+    draw();
+  } catch (err) {
+    const c = document.getElementById('scene'); if (c) c.style.display = 'none';
+  }
+
+  // Cursor personalizado com inércia (só com mouse)
+  if (fine && !reduce) {
+    document.documentElement.classList.add('has-cursor');
+    const dot = document.createElement('div'); dot.className = 'cursor cursor-dot';
+    const ring = document.createElement('div'); ring.className = 'cursor cursor-ring';
+    document.body.append(ring, dot);
+    let mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+    addEventListener('pointermove', (e) => { mx = e.clientX; my = e.clientY; dot.style.left = mx + 'px'; dot.style.top = my + 'px'; });
+    (function follow() {
+      rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(follow);
+    })();
+    document.querySelectorAll('a, button, .work, .tags span').forEach((el) => {
+      el.addEventListener('pointerenter', () => ring.classList.add('hover'));
+      el.addEventListener('pointerleave', () => ring.classList.remove('hover'));
+    });
+  }
+
+  // Quebra textos em letras (espaços continuam como texto, para a quebra de linha não mudar)
+  function splitChars(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((n) => {
+      if (!n.textContent.trim()) return;
+      const frag = document.createDocumentFragment();
+      for (const ch of n.textContent) {
+        if (ch === ' ') { frag.appendChild(document.createTextNode(' ')); continue; }
+        const sp = document.createElement('span');
+        sp.className = 'char';
+        sp.textContent = ch;
+        frag.appendChild(sp);
+      }
+      n.replaceWith(frag);
+    });
+  }
+  document.querySelectorAll('.split, .cut h3, .work h3, .brand').forEach((el) => splitChars(el));
+
+  if (!reduce) {
+    // Letras: as que estão perto do cursor sobem de escala e acendem
+    const chars = [...document.querySelectorAll('.char')];
+    let px = -9999, py = -9999, queued = false;
+    function updateChars() {
+      queued = false;
+      const rects = chars.map((c) => c.getBoundingClientRect());
+      chars.forEach((c, i) => {
+        const r = rects[i];
+        const d = Math.hypot(r.left + r.width / 2 - px, r.top + r.height / 2 - py);
+        const k = Math.max(0, 1 - d / 120);
+        c.style.setProperty('--k', k.toFixed(3));
+      });
+    }
+    const queueChars = () => { if (!queued) { queued = true; requestAnimationFrame(updateChars); } };
+    window.addEventListener('pointermove', (e) => { px = e.clientX; py = e.clientY; queueChars(); }, { passive: true });
+    window.addEventListener('scroll', queueChars, { passive: true });
+
+    // Linhas de fundo: curvas abstratas de tamanhos diferentes. Um feixe laranja
+    // percorre cada curva conforme você rola, e as curvas acendem com a velocidade da rolagem.
+    const hl = document.getElementById('hlines');
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 1600 900');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    hl.appendChild(svg);
+    const shapes = [];
+    const N = 11;
+    for (let i = 0; i < N; i++) {
+      const y0 = 60 + i * (780 / (N - 1));
+      const a1 = 90 + ((i * 47) % 190);
+      const a2 = 70 + ((i * 71) % 220);
+      const dx = (i % 3) * 90;
+      const d = `M -60 ${y0 + (i % 2) * 40} C ${260 + dx} ${y0 - a1}, ${640 - dx} ${y0 + a2}, ${920 + (i % 4) * 30} ${y0 - a2 * 0.5} S ${1380 - dx / 2} ${y0 + a1 * 0.9}, 1660 ${y0 - a1 * 0.4}`;
+      const base = document.createElementNS(NS, 'path');
+      base.setAttribute('d', d);
+      base.setAttribute('class', 'base');
+      base.setAttribute('vector-effect', 'non-scaling-stroke');
+      const sweep = document.createElementNS(NS, 'path');
+      sweep.setAttribute('d', d);
+      sweep.setAttribute('class', 'sweep');
+      sweep.setAttribute('pathLength', '1');
+      sweep.setAttribute('vector-effect', 'non-scaling-stroke');
+      svg.append(base, sweep);
+      shapes.push({ sweep, i });
+    }
+    // Duas formas fechadas, para quebrar o ritmo das linhas
+    [[1180, 260, 240, 150, 0.4], [360, 640, 210, 120, -0.6]].forEach(([cx, cy, rx, ry, rot], k) => {
+      const pts = [];
+      for (let t = 0; t <= 1.0001; t += 1 / 24) {
+        const ang = t * Math.PI * 2;
+        const wob = 1 + 0.18 * Math.sin(ang * 3 + k) + 0.1 * Math.cos(ang * 5);
+        pts.push([cx + Math.cos(ang + rot) * rx * wob, cy + Math.sin(ang + rot) * ry * wob]);
+      }
+      const d = 'M ' + pts.map((q) => q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' L ') + ' Z';
+      const base = document.createElementNS(NS, 'path');
+      base.setAttribute('d', d); base.setAttribute('class', 'base');
+      base.setAttribute('vector-effect', 'non-scaling-stroke');
+      const sweep = document.createElementNS(NS, 'path');
+      sweep.setAttribute('d', d); sweep.setAttribute('class', 'sweep');
+      sweep.setAttribute('pathLength', '1'); sweep.setAttribute('vector-effect', 'non-scaling-stroke');
+      svg.append(base, sweep);
+      shapes.push({ sweep, i: N + k });
+    });
+
+    let flash = 0, target = 0, lastY = window.scrollY;
+    function paintLines() {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const p = max > 0 ? window.scrollY / max : 0;
+      shapes.forEach(({ sweep, i }) => {
+        const pos = (p * 2.4 + i * 0.13) % 1.2;
+        sweep.style.strokeDashoffset = (-pos).toFixed(3);
+      });
+      const v = Math.abs(window.scrollY - lastY);
+      lastY = window.scrollY;
+      if (v > 1) target = Math.min(1, target + v / 60);
+    }
+    (function animateLines() {
+      flash += (target - flash) * 0.14;
+      target *= 0.92;
+      hl.style.setProperty('--f', flash.toFixed(3));
+      requestAnimationFrame(animateLines);
+    })();
+    window.addEventListener('scroll', paintLines, { passive: true });
+    paintLines();
+  }
+
+  if (!hasGsap || reduce) {
+    // Sem animações: mostra tudo de uma vez
+    document.querySelectorAll('.reveal').forEach((el) => { el.style.opacity = 1; });
+    return;
+  }
+
+  // Cortina de entrada, depois o texto do hero sobe linha por linha
+  const curtain = document.createElement('div');
+  curtain.className = 'curtain';
+  curtain.innerHTML = '<span>REC ● ENTRANDO</span>';
+  document.body.appendChild(curtain);
+  const intro = gsap.timeline({ defaults: { ease: 'expo.out' } });
+  intro
+    .to(curtain.querySelector('span'), { opacity: 1, duration: 0.2 }, 0)
+    .to(curtain, { yPercent: -100, duration: 1.1, ease: 'expo.inOut', delay: 0.25 })
+    .from('.hero .ln-in', { yPercent: 115, duration: 1.2, stagger: 0.1 }, '-=0.7')
+    .fromTo('.hero .reveal', { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9, stagger: 0.12 }, '-=0.9')
+    .add(() => curtain.remove());
+
+  // Régua: o cursor percorre enquanto o visitante desce
+  gsap.to(playhead, {
+    left: () => playhead.parentElement.clientWidth - 2,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true,
+      onUpdate: (self) => {
+        playhead.dataset.tc = tc(self.progress * 90);
+      },
+    },
+  });
+
+  // Títulos de seção: linhas sobem ao entrar na tela
+  gsap.utils.toArray('section h2.split').forEach((h) => {
+    gsap.from(h.querySelectorAll('.ln-in'), {
+      yPercent: 115, duration: 1.1, stagger: 0.08, ease: 'expo.out',
+      scrollTrigger: { trigger: h, start: 'top 85%', once: true },
+    });
+  });
+
+  // Cards de obra: entram em 3D, com a imagem revelada por máscara
+  gsap.utils.toArray('.work').forEach((card) => {
+    gsap.fromTo(card, { rotateX: 14, y: 80, opacity: 0 }, {
+      rotateX: 0, y: 0, opacity: 1, ease: 'power3.out', duration: 1.2,
+      scrollTrigger: { trigger: card, start: 'top 92%', once: true },
+    });
+    const frame = card.querySelector('.frame');
+    gsap.fromTo(frame, { clipPath: 'inset(0 0 100% 0)' }, {
+      clipPath: 'inset(0 0 0% 0)', duration: 1.4, ease: 'expo.inOut',
+      scrollTrigger: { trigger: card, start: 'top 92%', once: true },
+    });
+    // Parallax interno: a imagem anda mais devagar que o card
+    gsap.fromTo(frame, { scale: 1.12 }, {
+      scale: 1, ease: 'none',
+      scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true },
+    });
+    if (fine) {
+      // Inclinação 3D e brilho seguindo o cursor
+      const rxTo = gsap.quickTo(frame, 'rotateX', { duration: 0.5, ease: 'power3' });
+      const ryTo = gsap.quickTo(frame, 'rotateY', { duration: 0.5, ease: 'power3' });
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        rxTo((0.5 - py) * 10); ryTo((px - 0.5) * 12);
+        frame.style.setProperty('--mx', px * 100 + '%');
+        frame.style.setProperty('--my', py * 100 + '%');
+      });
+      card.addEventListener('pointerleave', () => { rxTo(0); ryTo(0); });
+    }
+  });
+
+  // Pontos de corte: a linha de tempo se desenha e o título entra
+  gsap.utils.toArray('.cut').forEach((el) => {
+    gsap.fromTo(el, { opacity: 0, x: -30 }, {
+      opacity: 1, x: 0, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+    });
+  });
+
+  // Blocos de texto e tags: entrada suave (exceto os que já têm animação própria)
+  const heroEl = document.querySelector('.hero');
+  gsap.utils.toArray('.reveal').forEach((el) => {
+    if (el.classList.contains('work') || el.classList.contains('cut') || heroEl.contains(el)) return;
+    gsap.fromTo(el, { y: 30, opacity: 0 }, {
+      y: 0, opacity: 1, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 90%', once: true },
+    });
+  });
+  gsap.utils.toArray('.tags span').forEach((tag, i) => {
+    gsap.fromTo(tag, { scale: 0.8, opacity: 0 }, {
+      scale: 1, opacity: 1, duration: 0.6, delay: (i % 4) * 0.06, ease: 'back.out(1.6)',
+      scrollTrigger: { trigger: tag, start: 'top 95%', once: true },
+    });
+  });
+
+  // Barra de progresso: cresce conforme a página é rolada
+  gsap.to('#progress', {
+    scaleX: 1, ease: 'none',
+    scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.3 },
+  });
+
+  // Hero com paralaxe: o título sobe mais devagar que a página e o texto some ao sair
+  gsap.to('.hero h1', {
+    y: 160, ease: 'none',
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true },
+  });
+  gsap.to('.hero .lede, .hero .hero-actions', {
+    y: 50, opacity: 0, ease: 'none',
+    scrollTrigger: { trigger: '.hero', start: '20% top', end: 'bottom top', scrub: true },
+  });
+
+  // Texto que acende palavra por palavra conforme você rola
+  gsap.utils.toArray('.scrub').forEach((el) => {
+    el.innerHTML = el.textContent.trim().split(/\s+/).map((w) => `<span class="w">${w}</span>`).join(' ');
+    const words = el.querySelectorAll('.w');
+    gsap.set(words, { opacity: 0.15 });
+    const tl = gsap.timeline({
+      scrollTrigger: { trigger: el, start: 'top 85%', end: 'bottom 55%', scrub: true },
+    });
+    words.forEach((w, i) => tl.to(w, { opacity: 1, duration: 1, ease: 'none' }, i));
+  });
+
+  // Pontos de corte: o que está no centro da tela fica em destaque
+  gsap.utils.toArray('.cut').forEach((cut) => {
+    const inner = cut.querySelector('div');
+    gsap.fromTo(inner, { opacity: 0.3 }, {
+      opacity: 1, ease: 'none',
+      scrollTrigger: { trigger: cut, start: 'top 75%', end: 'top 40%', scrub: true },
+    });
+  });
+
+  // Obras: no computador, a seção vira um trilho horizontal que anda enquanto você desce
+  if (window.matchMedia('(min-width: 900px)').matches) {
+    const pin = document.querySelector('.reel-pin');
+    const reel = document.querySelector('.reel');
+    document.documentElement.classList.add('hpin');
+    gsap.to(reel, {
+      x: () => -(reel.scrollWidth - window.innerWidth),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: pin, start: 'top top',
+        end: () => '+=' + (reel.scrollWidth - window.innerWidth),
+        pin: true, scrub: 1, invalidateOnRefresh: true,
+      },
+    });
+  }
+
+  // Faixa de texto: duas cópias para o loop ser contínuo; acelera com a rolagem
+  const track = document.getElementById('marquee');
+  track.innerHTML += track.innerHTML;
+  const loop = gsap.to(track, { xPercent: -50, ease: 'none', duration: 22, repeat: -1 });
+  ScrollTrigger.create({
+    onUpdate: (self) => {
+      const boost = Math.min(Math.abs(self.getVelocity()) / 600, 5);
+      gsap.to(loop, { timeScale: 1 + boost, duration: 0.3, overwrite: true });
+      gsap.to(loop, { timeScale: 1, duration: 1.2, delay: 0.2, overwrite: 'auto' });
+    },
+  });
+
+  // Botões magnéticos: acompanham o cursor de leve
+  if (fine) {
+    document.querySelectorAll('.magnetic').forEach((btn) => {
+      const xTo = gsap.quickTo(btn, 'x', { duration: 0.6, ease: 'elastic.out(1, 0.4)' });
+      const yTo = gsap.quickTo(btn, 'y', { duration: 0.6, ease: 'elastic.out(1, 0.4)' });
+      btn.addEventListener('pointermove', (e) => {
+        const r = btn.getBoundingClientRect();
+        xTo((e.clientX - (r.left + r.width / 2)) * 0.25);
+        yTo((e.clientY - (r.top + r.height / 2)) * 0.35);
+      });
+      btn.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
+    });
+  }
+})();
+</script>
+
+</body></html>
